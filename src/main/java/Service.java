@@ -1,58 +1,42 @@
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.util.Iterator;
+import java.util.Map;
 
+import database.DBUtils;
+import database.PostModel;
+import nioserver.IMessageProcessor;
+import nioserver.Server;
+import nioserver.http.HttpMessageReaderFactory;
+
+/**
+ *
+ */
 public class Service {
+    static final String httpResponse = "HTTP/1.1 200 OK\r\nContent-Length: 38\r\nContent-Type: text/html\r\n\r\n<html><body>Hello World!</body></html>";
 
-    private ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-    private ByteBuffer writeButter = ByteBuffer.allocate(1024);
+    public static void main(String[] args) throws IOException {
+        byte[] httpResponseBytes = httpResponse.getBytes("UTF-8");
 
-    private Selector selector;
+        PostModel postModel = new PostModel();
+        IMessageProcessor messageProcessor = (request, writeProxy) -> {
+            System.out.println("Message Received from socket: " + request.socketId);
 
-    public Service() throws IOException {
-        ServerSocketChannel socketChannel = ServerSocketChannel.open();
-        socketChannel.configureBlocking(false);
-        ServerSocket serverSocket = socketChannel.socket();
-        serverSocket.bind(new InetSocketAddress(8080));
-        this.selector = Selector.open();
-        socketChannel.register(selector, SelectionKey.OP_ACCEPT);
-    }
+            Map<String, String> post = postModel.fetchPostByID(7);
 
 
-    public static void main(String[] args) {
-        System.out.println("hi~");
+            /*
+            Message response = writeProxy.getMessage();
+            response.socketId = request.socketId;
+            response.writeToMessage(httpResponseBytes);
 
-        try {
-            new Service().boot();
-        } catch (IOException e) {
-            ;
-        }
-    }
+            writeProxy.enqueue(response);
+            */
+        };
 
-    public void boot() throws IOException {
-        while (selector.select() > 0) {
-            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-            while (iterator.hasNext()) {
+        DBUtils.inst().init();
 
-                SelectionKey selectionKey = iterator.next();
-                iterator.remove();
-                if (selectionKey.isAcceptable()) {
+        Server server = new Server(9999, new HttpMessageReaderFactory(), messageProcessor);
 
-                }
 
-                if (selectionKey.isReadable()) {
-
-                }
-
-                if (selectionKey.isWritable()) {
-
-                }
-            }
-        }
+        server.start();
     }
 }
