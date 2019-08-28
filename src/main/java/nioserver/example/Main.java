@@ -1,11 +1,11 @@
 package nioserver.example;
 
-import nioserver.*;
-import nioserver.http.HttpMessageReaderFactory;
-
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+
+import nioserver.IMessageProcessor;
+import nioserver.Message;
+import nioserver.Server;
+import nioserver.http.HttpMessageReaderFactory;
 
 /**
  *
@@ -19,11 +19,17 @@ public class Main {
         IMessageProcessor messageProcessor = (request, writeProxy) -> {
             System.out.println("Message Received from socket: " + request.socketId);
 
+
+
+
+
+            /*
             Message response = writeProxy.getMessage();
             response.socketId = request.socketId;
             response.writeToMessage(httpResponseBytes);
 
             writeProxy.enqueue(response);
+            */
         };
 
         Server server = new Server(9999, new HttpMessageReaderFactory(), messageProcessor);

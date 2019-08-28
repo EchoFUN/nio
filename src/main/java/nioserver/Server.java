@@ -3,7 +3,6 @@ package nioserver;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by jjenkov on 24-10-2015.
